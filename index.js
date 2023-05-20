@@ -37,7 +37,6 @@ async function run() {
 
     app.get("/toys/:id", async (req, res) => {
       const { id } = req.params;
-      console.log(id);
       const toy = await toysCollection.findOne({ _id: new ObjectId(id) });
 
       if (!toy) {
@@ -46,6 +45,34 @@ async function run() {
       }
 
       res.send(toy);
+    });
+
+    app.put("/toys/:id", async (req, res) => {
+      const { id } = req.params;
+      const updatedToy = req.body;
+      const result = await toysCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedToy }
+      );
+
+      if (result.modifiedCount === 0) {
+        res.status(404).json({ message: "Toy not found" });
+        return;
+      }
+
+      res.json({ message: "Toy updated successfully" });
+    });
+
+    app.delete("/toys/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await toysCollection.deleteOne({ _id: new ObjectId(id) });
+
+      if (result.deletedCount === 0) {
+        res.status(404).json({ message: "Toy not found" });
+        return;
+      }
+
+      res.json({ message: "Toy deleted successfully" });
     });
 
     // ...
