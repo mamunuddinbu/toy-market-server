@@ -1,14 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config()
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
 
 // middleware
 app.use(cors());
 app.use(express.json());
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nekc4yh.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -17,7 +16,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -25,31 +24,46 @@ async function run() {
     const toysCollection = client.db("toysData").collection("toysCollection");
 
     app.post("/toys", async (req, res) => {
-        const toy = req.body;
-        const result = await toysCollection.insertOne(toy);
-        res.send(result);
-      });
+      const toy = req.body;
+      const result = await toysCollection.insertOne(toy);
+      res.send(result);
+    });
 
-      app.get("/toys",async(req,res)=>{
-        const query = {};
-        const toys = await toysCollection.find(query).toArray();
-        res.send(toys);
-      });
-  }
-   finally {
+    app.get("/toys", async (req, res) => {
+      const query = {};
+      const toys = await toysCollection.find(query).toArray();
+      res.send(toys);
+    });
+
+    app.get("/toys/:id", async (req, res) => {
+      const { id } = req.params;
+      console.log(id);
+      const toy = await toysCollection.findOne({ _id: new ObjectId(id) });
+
+      if (!toy) {
+        res.status(404).json({ message: "Toy not found" });
+        return;
+      }
+
+      res.send(toy);
+    });
+
+    // ...
+
+  } finally {
   }
 }
-run().catch(error=>console.error(error));
+
+run().catch((error) => console.error(error));
 
 // By default
 app.get("/", (req, res) => {
-    res.send("Toy server is running");
-  });
-  
-  app.listen(port, () => {
-    console.log(`Toy server is running on port ${port}`);
-  });
+  res.send("Toy server is running");
+});
 
+app.listen(port, () => {
+  console.log(`Toy server is running on port ${port}`);
+});
 
 
 // const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -80,6 +94,18 @@ app.get("/", (req, res) => {
 //       const result = await cursor.toArray();
 //       res.send(result);
 //     });
+// app.get("/toys/:id", async (req, res) => {
+//   const { id } = req.params;
+//   console.log(id);
+//   const toy = await toysCollection.findOne({ _id: new ObjectId(id) });
+
+//   if (!toy) {
+//     res.status(404).json({ message: "Toy not found" });
+//     return;
+//   }
+
+//   res.send(toy);
+// });
 
 //     app.get("/services/:id", async (req, res) => {
 //       const id = req.params.id;
@@ -105,12 +131,16 @@ app.get("/", (req, res) => {
 //       res.send(result);
 //     });
 
+
+
+
+
 //     app.post("/bookings", async (req, res) => {
-//       const booking = req.body;
-//       console.log(booking);
-//       const result = await bookingCollection.insertOne(booking);
-//       res.send(result);
-//     });
+  //       const booking = req.body;
+  //       console.log(booking);
+  //       const result = await bookingCollection.insertOne(booking);
+  //       res.send(result);
+  //     });
 
 //     app.patch("/bookings/:id", async (req, res) => {
 //       const id = req.params.id;
@@ -144,5 +174,3 @@ app.get("/", (req, res) => {
 //   }
 // }
 // run().catch(console.dir);
-
-
