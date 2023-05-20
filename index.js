@@ -35,17 +35,43 @@ async function run() {
       res.send(toys);
     });
 
-    app.get("/toys/:id", async (req, res) => {
+
+    // app.get("/toys/seller/:sellerEmail", async (req, res) => {
+    //   const { sellerEmail } = req.params;
+    //   const query = { sellerEmail:sellerEmail };
+    //   const toys = await toysCollection.find(query).toArray();
+    
+    //   if (toys.length === 0) {
+    //     res.status(404).json({ message: "Toys not found for the seller" });
+    //     return;
+    //   }
+    
+    //   res.send(toys);
+    // });
+    app.get("/toys/email/:email", async (req, res) => {
+      const query = { sellerEmail: req.params.email };
+      const result = await toysCollection.find(query).toArray();
+      res.send(result);
+    });
+    
+
+  
+
+    app.get("/toys/id/:id", async (req, res) => {
       const { id } = req.params;
       const toy = await toysCollection.findOne({ _id: new ObjectId(id) });
-
+    
       if (!toy) {
         res.status(404).json({ message: "Toy not found" });
         return;
       }
-
+    
       res.send(toy);
     });
+    
+
+
+   
 
     app.put("/toys/:id", async (req, res) => {
       const { id } = req.params;
