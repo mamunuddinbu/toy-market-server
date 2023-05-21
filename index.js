@@ -73,7 +73,7 @@ async function run() {
 
    
 
-    app.put("/toys/:id", async (req, res) => {
+    app.put("/toys/update/id/:id", async (req, res) => {
       const { id } = req.params;
       const updatedToy = req.body;
       const result = await toysCollection.updateOne(
